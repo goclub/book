@@ -118,7 +118,9 @@ func TestIncorrectSubtractAmountSafeRange(t *testing.T) {
 	for i:=0;i<10;i++ {
 		wg.Add(1)
 		go func() {
-			resetAmountSQL := "UPDATE `deduction_amount` SET `amount` = `amount` - ? WHERE `amount` - ? >= 0 AND `name` = ?"
+			// 注意：
+			// WHERE `amount` - ? >= 0 在遇到 unsigned 时会报错,使用 WHERE `amount` >= ? 可避免错误
+			resetAmountSQL := "UPDATE `deduction_amount` SET `amount` = `amount` - ? WHERE `amount` >= ? AND `name` = ?"
 			result, err := db.Exec(resetAmountSQL, subtractAmount, subtractAmount, name) ; if err != nil {
 				panic(err)
 			}
