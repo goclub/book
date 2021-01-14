@@ -186,7 +186,7 @@ func TestUpdateTransaction(t *testing.T) {
 
 
 /*
-	不合适的乐观锁在遇到并发时执行结果大部分都会"失败"
+	不合适的乐观锁在遇到并发时执行结果大部分都会"失败"（严谨的方式应该使用 version 作为 compare 条件）
 */
 func TestIncorrectCompareAndSwap(t *testing.T) {
 	name := "IncorrectCompareAndSwap"
