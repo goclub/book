@@ -8,7 +8,7 @@ fis.match("(**).source.md", {
         function (content, file) {
             return content.replace(/\[(.*?)\|embed\]\((.*)\)/g, function (source, name, ref) {
                 const extname = path.extname(ref)
-                const code = fs.readFileSync(path.join(__dirname, ref)).toString()
+                const code = fs.readFileSync(path.join(file.dirname, ref)).toString()
                 return `[${name}](${ref})` +
                     '\r\n' +
                     '```' + extname +
