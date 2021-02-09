@@ -21,7 +21,7 @@
 
 ## var make map
 
-[var_make_map|embed](./var_make_map/main.go)
+[var_make_map|embed](./var_make_map/doc_test.go)
 
 ## make chan
 
