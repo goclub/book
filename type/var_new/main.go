@@ -28,7 +28,7 @@ func main () {
 		log.Print("var i *int = &v ",*i)
 	}
 	{
-		// 或者使用 new （分配空间，并将指针指向零值的空间）
+		// 或者使用 new （分配空间，并将指针指向零值）
 		var i *int = new(int)
 		*i++
 		log.Print("var i *int = new(int)",*i)

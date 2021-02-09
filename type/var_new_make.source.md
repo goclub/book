@@ -17,7 +17,7 @@
 
 ## var make slice array 
 
-[var_make_slice_array|embed](./var_make_slice_array/main.go)
+[var_make_slice_array|embed](./var_make_slice_array/doc_test.go)
 
 ## var make map
 
