@@ -45,7 +45,7 @@ func main () {
 		log.Print("var i *int = &v ",*i)
 	}
 	{
-		// 或者使用 new （分配空间，并将指针指向零值的空间）
+		// 或者使用 new （分配空间，并将指针指向零值）
 		var i *int = new(int)
 		*i++
 		log.Print("var i *int = new(int)",*i)
@@ -62,112 +62,143 @@ func main () {
 
 ## var make slice array 
 
-[var_make_slice_array](./var_make_slice_array/main.go)
+[var_make_slice_array](./var_make_slice_array/doc_test.go)
 ```.go
-package main
+package doc_test
 
-import "log"
+import (
+	"github.com/stretchr/testify/assert"
+	"log"
+	"testing"
+)
 
-func main() {
-	{
-		var names = []string{"a","b","c"}
-		log.Print(`var names = []string{"a","b","c"} `, names, len(names)) // [a b c] 3
-	}
-	log.Print("-----------")
-	{
-		var names = make([]string, 0)
-		// 等同 names := make([]string, 0)
-		names = append(names, "a", "b", "c")
-		log.Print(`var names = make([]string, 0) `, names, len(names)) // [a b c] 3
-	}
-	{
-		// 可以通过 make 分配空间的同时初始化长度，初始化元素值为类型的空值(zero value)
-		var names = make([]string, 2)
-		// 等同 names := make([]string, 0)
-		names = append(names, "a", "b", "c")
-		log.Print(`var names = make([]string, 2) `, names, len(names)) // [  a b c] 5
-	}
-	log.Print("-----------")
-	{
-		// [2]string 表示是长度为2由string组成的 array
-		var names = [2]string{}
-		// 等同: var names = [2]string{}
-		log.Print("var names = [2]string{} ", names, len(names)) // [ ] 2
-	}
-	log.Print("-----------")
-	// make([]string, 2, 2)  是 make 最常用的使用场景
-	{
-		arrayLen := 2
-		arrayCap := 2
-		var names = make([]string, arrayLen, arrayCap)
-		log.Print(`make([]string, 2, 2) 初始化设置数组长度2，容量为2`, names, len(names), cap(names))
-		names[0] = "a"
-		log.Print(`names[0] = "a" `, names, len(names), cap(names))
-	}
-	log.Print("-----------")
-	{
-		arrayLen := 0
-		arrayCap := 2
-		var names = make([]string, arrayLen, arrayCap)
-		log.Print(`make([]string, 0, 2) 初始化设置数组长度0，容量为2`, names, len(names), cap(names))
-		names = append(names, "a")
-		log.Print(`append`, names, len(names), cap(names))
-		names = append(names, "b")
-		log.Print(`append`, names, len(names), cap(names))
-		names = append(names, "c")
-		log.Print(`append（如果数组容量不够，运行 append 会自动扩充容量）`, names, len(names), cap(names))
-	}
-	log.Print("-----------")
+func TestVarSlice(t *testing.T) {
+	log.Print("声明并初始化切片")
+	var numbers = []int{1,2,3}
+	assert.Equal(t, len(numbers), 3)
+}
+func TestMakeSliceLen0(t *testing.T) {
+			log.Print("通过 make 声明并初始化切片")
+			var numbers = make([]int, 0)
+			// 等同于 numbers := []int{}
+			assert.Equal(t, numbers, []int{})
+			assert.Equal(t, len(numbers), 0)
+			numbers = append(numbers, 1,2,3)
+			assert.Equal(t, len(numbers), 3)
+}
+
+func TestMakeSliceLen2(t *testing.T) {
+	log.Print("通过 make 声明并初始化切片长度为2， 初始化元素为类型的 zero value (0)")
+	var numbers = make([]int, 2)
+	// 等同于 numbers := []int{0, 0}
+	assert.Equal(t, numbers, []int{0, 0})
+	assert.Equal(t, len(numbers), 2)
+	numbers = append(numbers, 1,2,3)
+	assert.Equal(t, numbers, []int{0, 0, 1, 2, 3})
+	assert.Equal(t, len(numbers), 5)
+}
+
+func TestArray(t *testing.T) {
+	log.Print("创建数组（固定长度的切片）数组元素为 zero value")
+	// 此处的 2 是 cap
+	var numbers = [2]int{}
+	assert.Equal(t, numbers[0], 0)
+	assert.Equal(t, numbers[1], 0)
+	// // 如果 index(10) 超出了 cap(2) 则会发生**编译期**错误
+	// log.Print(numbers[10])
+	assert.Equal(t, len(numbers), 2)
+}
+
+func TestArrayLen2Cap2(t *testing.T) {
+	log.Print("通过 make 创建长度2 容量2的数字，初始化元素为类型的 zero value (0)")
+	var numbers = make([]int, 2, 2)
+	// 等同于 numbers := []int{0,0}
+	assert.Equal(t, numbers, []int{0,0})
+	assert.Equal(t, len(numbers), 2)
+	assert.Equal(t, cap(numbers), 2)
+	numbers[0] = 9
+	assert.Equal(t, numbers, []int{9,0})
+	// 如果 index(10) 超出了 cap(2) 则会发生**运行时**错误
+	// numbers[10] = 9
+}
+
+func TestArrayLen0Cap2(t *testing.T) {
+	log.Print("通过 make 创建长度0 容量2的数组")
+	var numbers = make([]int, 0, 2)
+	assert.Equal(t, numbers, []int{})
+	assert.Equal(t, len(numbers), 0)
+	assert.Equal(t, cap(numbers), 2)
+
+	numbers = append(numbers, 1)
+	assert.Equal(t, numbers, []int{1})
+	assert.Equal(t, len(numbers), 1)
+	assert.Equal(t, cap(numbers), 2)
+
+	numbers = append(numbers, 2)
+	assert.Equal(t, numbers, []int{1,2})
+	assert.Equal(t, len(numbers), 2)
+	assert.Equal(t, cap(numbers), 2)
+
+	numbers = append(numbers, 3)
+	assert.Equal(t, numbers, []int{1,2,3})
+	assert.Equal(t, len(numbers), 3)
+	assert.Equal(t, cap(numbers), 4)
+}
+
+func TestMakeArrayLen0Cap2Panic(t *testing.T) {
+	log.Print("大部分场景下 numbers := make([]string, len, cap) len 和 cap 设置的不一致是没有意义的")
 	func() {
 		defer func() {
 			log.Print(recover())
 		}()
-		// 大部分场景下 names := make([]string, len, cap) len 和 cap 设置的不同时没有意义的
-		names := make([]string, 0, 2)
-		// 因为 names[0] = "a" 会panic
-		names[0] = "a"
+		numbers := make([]int, 0, 2)
+		log.Print(`因为 numbers[0] = 1 会panic`)
+		numbers[0] = 1
 	}()
 }
-
 ```
 
 ## var make map
 
-[var_make_map](./var_make_map/main.go)
+[var_make_map](./var_make_map/doc_test.go)
 ```.go
-package main
+package doc_test
 
-import "log"
+import (
+	"github.com/stretchr/testify/assert"
+	"log"
+	"testing"
+)
 
-func main () {
-	{
-		var data map[string]int
-		log.Print(`var data map[string]int`, data)
-	}
-	func() {
-		defer func() {
-			log.Print(recover())
-		}()
-		var data map[string]int
-		// 声明了但是没有分配空间，会导致赋值时 panic
-		data["age"] = 1
-	}()
-	{
-		// 初始化并赋值
-		var data = map[string]int{}
-		log.Print(`var data = map[string]int{} `, data) // map[]
-		data["name"] = 1
-		log.Print(`var data = map[string]int{} `, data) // map[name:1]
-	}
-	{
-		// 通过 make 分配空间
-		var data = make(map[string]int)
-		log.Print(`var data = make(map[string]int) `, data) // map[]
-		data["name"] = 1
-		log.Print(`var data = make(map[string]int) `, data) // map[name:1]
-	}
+func TestVarMap(t *testing.T) {
+	log.Print("声明变量，但没有分配空间")
+	var data map[string]int
+	assert.Equal(t, data, map[string]int(nil))
 }
+func TestDeclareEmptyMap(t *testing.T) {
+	defer func() {
+		log.Print(recover())
+	}()
+	log.Print("只声明变量，不分配空间，赋值时会panic")
+	var data map[string]int
+	data["age"] = 1
+}
+func TestMap(t *testing.T) {
+	log.Print("声明变量，并初始化赋值")
+	var data = map[string]int{}
+	assert.Equal(t, data, map[string]int{})
 
+	data["name"] = 1
+	assert.Equal(t, data, map[string]int{"name":1})
+}
+func TestMakeMap(t *testing.T) {
+	log.Print("通过 make 分配空间，也可以避免panic")
+	var data = make(map[string]int)
+	assert.Equal(t, data, map[string]int{})
+
+	data["name"] = 1
+	assert.Equal(t, data, map[string]int{"name":1})
+}
 
 ```
 
@@ -181,7 +212,9 @@ import "log"
 
 func main() {
 	{
+		// 只是声明变量
 		var nameCh chan string
+		// 通过 make 初始化空间
 		nameCh = make(chan string) // 注释这一行会因为 nameCh 没有分配内存空间导致死锁
 		log.Print("nameCh ", nameCh) // 内存地址
 		go func() {
