@@ -17,7 +17,9 @@
 ```.go
 package main
 
-import "log"
+import (
+	"log"
+)
 
 func main () {
 	{
@@ -56,6 +58,15 @@ func main () {
 		*i++
 		log.Print("i := new(int)",*i)
 	}
+	// interface 有可以使用 new 创建一个指向 nil 的指针
+	type Closer interface {
+		Close() error
+	}
+	newCloser := new(Closer)
+	log.Print("newCloser:", newCloser) // 内存地址
+	log.Print("*newCloser:", *newCloser)// nil
+	// 不过目前我不知道有什么合适的场景使用 new(interface)
+	// 欢迎留言补充 https://github.com/goclub/book/issues/new
 }
 
 ```
